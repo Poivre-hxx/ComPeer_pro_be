@@ -4,7 +4,7 @@ from typing import Union
 import math
 import os 
 from datetime import datetime
-#from openai import OpenAI
+from openai import OpenAI
 import json
 from langchain_openai import OpenAIEmbeddings
 
@@ -14,7 +14,6 @@ from src.VectorDB import vectorDB
 from src.settings import API_KEY
 from src.memory import Memory
 
-i =0
 class dialogue_module:
     def __init__(self,user_ids):
         # include memory module and dialogue generation module
@@ -31,18 +30,17 @@ class dialogue_module:
         selected_strategy += strategy
         print(f"selected_strategy is {strategy}")
         # step2: sent related memory and memory to LLM_2
-        #relative_memory, relativeness = self.memory_module.search_related_memory(user_id,user_words)
+        relative_memory, relativeness = self.memory_module.search_related_memory(user_id,user_words)
         mem_info = ''
-        # for i in range(len(relative_memory)):
-        #     mem_info += f'{relative_memory[i]}[relativeness: {relativeness[i]}]\n'
+        for i in range(len(relative_memory)):
+            mem_info += f'{relative_memory[i]}[relativeness: {relativeness[i]}]\n'
 
-        # if len(relative_memory) > 0:
-        #     memory_prompt = f'Related memory: The memory that related to the dialogue:\n\n{str(relative_memory)}'
-        # else:
-        memory_prompt = ''
+        if len(relative_memory) > 0:
+            memory_prompt = f'Related memory: The memory that related to the dialogue:\n\n{str(relative_memory)}'
+        else:
+            memory_prompt = ''
         
         # step3: LLM_2 generate passive reply
-        self.memory_module.ensure_user(user_id)
         response=self.LLM_2.generate_passive_reply(user_words, memory_prompt, self.memory_module.short_term_memory[user_id], selected_strategy)
         
         # step4: Update memory
@@ -53,7 +51,7 @@ class dialogue_module:
         
     def send_proactive_message(self, user_id, event):
 
-        # step1: LLM_1 select strategy,llm1根据事件选择了一个生成策略
+        # step1: LLM_1 select strategy
         selected_strategy = "Dialogue strategy suggestions: you should refer to these strategies to organize dialogue content:"
         selected_strategy += self.LLM_1.select_proactive_strategy(str(event))
         

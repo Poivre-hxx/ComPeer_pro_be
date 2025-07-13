@@ -3,8 +3,6 @@ import requests
 import datetime
 from termcolor import colored
 from src.settings import CITY
-
-#获取天气信息：
 def get_today_info():
     city = CITY
     f = open('weather_json.json', 'rb')
